@@ -24,6 +24,7 @@
     }
     h1 { margin: 0 0 16px; font-size: clamp(32px, 6vw, 56px); }
     p { font-size: 20px; line-height: 1.7; margin: 10px 0; }
+    .stamp { margin: 18px auto 4px; padding: 12px 18px; border-radius: 14px; background: #f1f5f9; font-weight: 700; }
     button {
       margin-top: 18px;
       border: 0;
@@ -39,8 +40,9 @@
 </head>
 <body>
   <main class="card">
-    <h1>Vercel 部署测试 🚀</h1>
-    <p>如果你是在手机、平板或另一台电脑上通过网址看到这个页面，说明“ChatGPT → GitHub → Vercel”链路已经跑通。</p>
+    <h1>自动更新测试成功 🚀</h1>
+    <p>这个页面已经由 ChatGPT 修改 GitHub 文件，并交给 Vercel 自动重新部署。</p>
+    <div class="stamp">测试标记：2026-10-01 · GitHub → Vercel</div>
     <button onclick="document.getElementById('msg').textContent='交互功能正常 ✅'">测试点击</button>
     <div id="msg"></div>
   </main>
