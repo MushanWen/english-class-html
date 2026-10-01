@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fff9ed"><title>第12次早读 · 月考复习·核心词汇</title><style>
+:root{--u:1px;--bg:#fff9ed;--ink:#122f40;--blue:#075b86;--orange:#c05016;--line:#d6e2e5}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
+body{background:#172e3c;font-family:"Segoe UI","Microsoft YaHei","Noto Sans",Arial,sans-serif;color:var(--ink);user-select:none;-webkit-user-select:none}
+button{font:inherit;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#stage{position:absolute;left:50%;top:50%;width:calc(1600 * var(--u));height:calc(900 * var(--u));transform:translate(-50%,-50%);background:var(--bg);overflow:hidden}
+.page{position:absolute;inset:0;padding:calc(24 * var(--u)) calc(38 * var(--u)) calc(110 * var(--u));display:none;flex-direction:column}
+.page.active{display:flex}h1{font-size:calc(46 * var(--u));line-height:1.2;margin:0 0 calc(18 * var(--u));font-weight:800;letter-spacing:calc(1 * var(--u));border-left:calc(8 * var(--u)) solid var(--orange);padding-left:calc(16 * var(--u))}
+.words{display:grid;grid-template-rows:repeat(8,1fr);grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 calc(30 * var(--u));flex:1;min-height:0}
+.word{border-bottom:calc(1 * var(--u)) solid var(--line);padding:calc(5 * var(--u)) calc(6 * var(--u));display:flex;flex-direction:column;justify-content:center;min-width:0}
+.word-top{display:flex;align-items:baseline;gap:calc(14 * var(--u));white-space:nowrap}
+.english{font-size:calc(39 * var(--u));line-height:1.12;font-weight:750;color:var(--blue)}
+.ipa{font-family:"Segoe UI","DejaVu Sans","Noto Sans",Arial,sans-serif;font-size:calc(27 * var(--u));font-weight:500;line-height:1.2;color:#263e4c}
+.word-bottom{display:flex;align-items:baseline;justify-content:space-between;gap:calc(10 * var(--u));margin-top:calc(4 * var(--u))}
+.meaning{font-size:calc(30 * var(--u));font-weight:650;line-height:1.15}.source{font-size:calc(22 * var(--u));color:#425666;white-space:nowrap}
+.review{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(5,1fr);gap:calc(14 * var(--u)) calc(28 * var(--u));flex:1;min-height:0}
+.review-row{display:flex;flex-direction:column;justify-content:center;padding:calc(8 * var(--u)) calc(16 * var(--u));border-bottom:calc(2 * var(--u)) solid var(--line)}
+.review-en{font-size:calc(38 * var(--u));font-weight:700;line-height:1.15;color:var(--blue)}.review-cn{margin-top:calc(7 * var(--u));font-size:calc(28 * var(--u));line-height:1.2}
+.dictation{display:grid;grid-template-rows:repeat(8,1fr);grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 calc(32 * var(--u));flex:1;min-height:0}
+.dict-row{display:flex;align-items:center;gap:calc(18 * var(--u));border-bottom:calc(1 * var(--u)) solid var(--line);padding:calc(5 * var(--u)) calc(12 * var(--u));font-size:calc(39 * var(--u));font-weight:700;line-height:1.2}
+.num{color:#5b6c77;font-size:calc(28 * var(--u));font-weight:600;width:calc(40 * var(--u));flex:none}
+.dict-body{display:flex;flex-direction:column;gap:calc(4 * var(--u))}.answer{font-size:calc(30 * var(--u));color:var(--blue);display:none}.answers-visible .answer{display:block}.answers-visible .dict-row{font-size:calc(30 * var(--u))}
+footer{position:absolute;bottom:0;left:0;right:0;height:calc(88 * var(--u));background:#eaf2f3;border-top:calc(2 * var(--u)) solid var(--line);display:flex;align-items:center;gap:calc(16 * var(--u));padding:calc(12 * var(--u)) calc(38 * var(--u))}
+.hold{position:relative;overflow:hidden;border:calc(2 * var(--u)) solid var(--blue);border-radius:calc(10 * var(--u));background:#fff;font-size:calc(28 * var(--u));font-weight:750;min-width:calc(170 * var(--u));height:calc(62 * var(--u));color:var(--blue);padding:0 calc(18 * var(--u))}
+.hold::before{content:"";position:absolute;inset:0;background:#acd9ef;transform:scaleX(var(--progress,0));transform-origin:left;pointer-events:none}.hold span{position:relative;pointer-events:none}
+.hold:disabled{opacity:.28;cursor:default;border-color:#8395a1}.hold:focus-visible{outline:calc(4 * var(--u)) solid var(--orange);outline-offset:calc(3 * var(--u))}
+.page-status{font-size:calc(26 * var(--u));font-weight:700;white-space:nowrap}.nav-hint{font-size:calc(21 * var(--u));color:#415563;white-space:nowrap}.spacer{flex:1}#answerBtn{border-color:var(--orange);color:var(--orange)}
+[hidden]{display:none!important}
+</style></head>
+<body><main id="stage" data-lesson="12" data-version="2026-10-01.1">
+<section class="page active" id="reviewPage" aria-label="旧词朗读复习"><h1>第12次早读 · 旧词朗读复习</h1><div class="review"><div class="review-row"><div class="review-en">solve a problem</div><div class="review-cn">解决一个问题</div></div><div class="review-row"><div class="review-en">work together</div><div class="review-cn">一起合作</div></div><div class="review-row"><div class="review-en">create a product</div><div class="review-cn">创造一种产品</div></div><div class="review-row"><div class="review-en">a creative idea</div><div class="review-cn">一个有创意的想法</div></div><div class="review-row"><div class="review-en">a helpful invention</div><div class="review-cn">一项有帮助的发明</div></div><div class="review-row"><div class="review-en">protect the environment</div><div class="review-cn">保护环境</div></div><div class="review-row"><div class="review-en">We can improve our lives.</div><div class="review-cn">我们能改善生活。</div></div><div class="review-row"><div class="review-en">The design has changed.</div><div class="review-cn">设计已经改变了。</div></div><div class="review-row"><div class="review-en">It is easy to use.</div><div class="review-cn">它容易使用。</div></div><div class="review-row"><div class="review-en">We have become more confident.</div><div class="review-cn">我们变得更自信了。</div></div></div></section>
+<section class="page" id="learnPage" aria-label="今日词汇学习"><h1>第12次早读</h1><div class="words"><div class="word"><div class="word-top"><span class="english">confident</span><span class="ipa">/ˈkɒnfɪdənt/</span></div><div class="word-bottom"><span class="meaning">自信的</span><span class="source">〔p.9｜3a〕</span></div></div><div class="word"><div class="word-top"><span class="english">happiness</span><span class="ipa">/ˈhæpinəs/</span></div><div class="word-bottom"><span class="meaning">快乐；幸福</span><span class="source">〔p.9｜3a〕</span></div></div><div class="word"><div class="word-top"><span class="english">improve</span><span class="ipa">/ɪmˈpruːv/</span></div><div class="word-bottom"><span class="meaning">提高；改善</span><span class="source">〔p.45｜4c〕</span></div></div><div class="word"><div class="word-top"><span class="english">invent</span><span class="ipa">/ɪnˈvent/</span></div><div class="word-bottom"><span class="meaning">发明；创造</span><span class="source">〔p.45｜4b〕</span></div></div><div class="word"><div class="word-top"><span class="english">design</span><span class="ipa">/dɪˈzaɪn/</span></div><div class="word-bottom"><span class="meaning">设计</span><span class="source">〔p.43｜2c〕</span></div></div><div class="word"><div class="word-top"><span class="english">connect</span><span class="ipa">/kəˈnekt/</span></div><div class="word-bottom"><span class="meaning">连接</span><span class="source">〔p.42｜1c〕</span></div></div><div class="word"><div class="word-top"><span class="english">press</span><span class="ipa">/pres/</span></div><div class="word-bottom"><span class="meaning">按；压</span><span class="source">〔p.45｜4b〕</span></div></div><div class="word"><div class="word-top"><span class="english">sound</span><span class="ipa">/saʊnd/</span></div><div class="word-bottom"><span class="meaning">声音</span><span class="source">〔月考｜完形填空〕</span></div></div><div class="word"><div class="word-top"><span class="english">helpful</span><span class="ipa">/ˈhelpfl/</span></div><div class="word-bottom"><span class="meaning">有帮助的</span><span class="source">〔月考｜语篇填空〕</span></div></div><div class="word"><div class="word-top"><span class="english">product</span><span class="ipa">/ˈprɒdʌkt/</span></div><div class="word-bottom"><span class="meaning">产品</span><span class="source">〔p.48｜2a〕</span></div></div><div class="word"><div class="word-top"><span class="english">protect</span><span class="ipa">/prəˈtekt/</span></div><div class="word-bottom"><span class="meaning">保护</span><span class="source">〔p.42｜1c〕</span></div></div><div class="word"><div class="word-top"><span class="english">allow</span><span class="ipa">/əˈlaʊ/</span></div><div class="word-bottom"><span class="meaning">允许</span><span class="source">〔p.45｜4c〕</span></div></div><div class="word"><div class="word-top"><span class="english">develop</span><span class="ipa">/dɪˈveləp/</span></div><div class="word-bottom"><span class="meaning">发展；开发</span><span class="source">〔p.44｜3a〕</span></div></div><div class="word"><div class="word-top"><span class="english">use</span><span class="ipa">/juːz/</span></div><div class="word-bottom"><span class="meaning">使用</span><span class="source">〔p.45｜4c〕</span></div></div><div class="word"><div class="word-top"><span class="english">make</span><span class="ipa">/meɪk/</span></div><div class="word-bottom"><span class="meaning">制作；使</span><span class="source">〔p.45｜4a〕</span></div></div></div></section>
+<section class="page" id="dictationPage" aria-label="汉译英默写"><h1>汉译英默写</h1><div class="dictation"><div class="dict-row"><span class="num">1.</span><div class="dict-body"><span class="prompt">有帮助的</span><span class="answer">helpful</span></div></div><div class="dict-row"><span class="num">2.</span><div class="dict-body"><span class="prompt">发明；创造</span><span class="answer">invent</span></div></div><div class="dict-row"><span class="num">3.</span><div class="dict-body"><span class="prompt">保护</span><span class="answer">protect</span></div></div><div class="dict-row"><span class="num">4.</span><div class="dict-body"><span class="prompt">自信的</span><span class="answer">confident</span></div></div><div class="dict-row"><span class="num">5.</span><div class="dict-body"><span class="prompt">制作；使</span><span class="answer">make</span></div></div><div class="dict-row"><span class="num">6.</span><div class="dict-body"><span class="prompt">按；压</span><span class="answer">press</span></div></div><div class="dict-row"><span class="num">7.</span><div class="dict-body"><span class="prompt">发展；开发</span><span class="answer">develop</span></div></div><div class="dict-row"><span class="num">8.</span><div class="dict-body"><span class="prompt">快乐；幸福</span><span class="answer">happiness</span></div></div><div class="dict-row"><span class="num">9.</span><div class="dict-body"><span class="prompt">产品</span><span class="answer">product</span></div></div><div class="dict-row"><span class="num">10.</span><div class="dict-body"><span class="prompt">连接</span><span class="answer">connect</span></div></div><div class="dict-row"><span class="num">11.</span><div class="dict-body"><span class="prompt">使用</span><span class="answer">use</span></div></div><div class="dict-row"><span class="num">12.</span><div class="dict-body"><span class="prompt">提高；改善</span><span class="answer">improve</span></div></div><div class="dict-row"><span class="num">13.</span><div class="dict-body"><span class="prompt">允许</span><span class="answer">allow</span></div></div><div class="dict-row"><span class="num">14.</span><div class="dict-body"><span class="prompt">声音</span><span class="answer">sound</span></div></div><div class="dict-row"><span class="num">15.</span><div class="dict-body"><span class="prompt">设计</span><span class="answer">design</span></div></div></div></section>
+<footer><button class="hold" id="prevBtn" aria-label="长按0.7秒上一页" disabled><span>上一页</span></button><span class="page-status" id="pageStatus" aria-live="polite">1 / 3</span><button class="hold" id="nextBtn" aria-label="长按0.7秒下一页"><span>下一页</span></button><span class="nav-hint">长按 0.7 秒操作</span><span class="spacer"></span><button class="hold" id="answerBtn" aria-label="长按0.7秒显示或隐藏默写答案" aria-pressed="false" hidden><span>显示答案</span></button></footer>
+</main><script>
+(() => {
+ 'use strict';
+ const stage = document.getElementById('stage');
+ const pages = [...document.querySelectorAll('.page')];
+ const prev = document.getElementById('prevBtn'), next = document.getElementById('nextBtn');
+ const answer = document.getElementById('answerBtn');
+ let current = 0, hold = null, raf = 0, revealing = false;
+ const HOLD_MS = 700;
+ function resize(){stage.style.setProperty('--u',`${Math.min(innerWidth/1600,innerHeight/900)}px`);}
+ function cancelHold(){
+  if(hold) hold.button.style.setProperty('--progress','0');
+  hold=null; cancelAnimationFrame(raf);
+ }
+ function render(){
+  pages.forEach((p,i)=>{p.classList.toggle('active',i===current);p.setAttribute('aria-hidden',String(i!==current));});
+  prev.disabled=current===0;next.disabled=current===2;answer.hidden=current!==2;
+  document.getElementById('pageStatus').textContent=`${current+1} / 3`;
+  stage.dataset.page=String(current+1);
+ }
+ function go(delta){
+  const target=current+delta;if(target<0||target>2)return;
+  cancelHold();current=target;revealing=false;pages[2].classList.remove('answers-visible');
+  answer.querySelector('span').textContent='显示答案';answer.setAttribute('aria-pressed','false');render();
+ }
+ function toggleAnswers(){
+  if(current!==2)return;
+  revealing=!revealing;pages[2].classList.toggle('answers-visible',revealing);
+  answer.querySelector('span').textContent=revealing?'隐藏答案':'显示答案';
+  answer.setAttribute('aria-pressed',String(revealing));
+ }
+ function tick(){
+  if(!hold)return;
+  const elapsed=performance.now()-hold.started;
+  hold.button.style.setProperty('--progress',String(Math.min(1,elapsed/HOLD_MS)));
+  if(elapsed>=HOLD_MS){const fn=hold.action;cancelHold();fn();return;}
+  raf=requestAnimationFrame(tick);
+ }
+ function bind(button, action){
+  button.addEventListener('click',e=>e.preventDefault());
+  button.addEventListener('contextmenu',e=>e.preventDefault());
+  button.addEventListener('pointerdown',e=>{
+   if(button.disabled||button.hidden||e.button!==0||!e.isPrimary)return;
+   e.preventDefault();cancelHold();
+   hold={button,action,id:e.pointerId,started:performance.now()};
+   button.setPointerCapture(e.pointerId);raf=requestAnimationFrame(tick);
+  });
+  button.addEventListener('pointermove',e=>{
+   if(!hold||hold.button!==button||hold.id!==e.pointerId)return;
+   const r=button.getBoundingClientRect();
+   if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)cancelHold();
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>button.addEventListener(type,e=>{
+   if(hold&&hold.id===e.pointerId)cancelHold();
+  }));
+  button.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.preventDefault();});
+ }
+ bind(prev,()=>go(-1));bind(next,()=>go(1));bind(answer,toggleAnswers);
+ document.addEventListener('pointerdown',e=>{if(!e.isPrimary)cancelHold();},true);
+ document.addEventListener('visibilitychange',cancelHold);window.addEventListener('blur',cancelHold);
+ window.addEventListener('resize',resize);
+ window.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+ window.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+ resize();render();
+})();
+</script></body></html>
