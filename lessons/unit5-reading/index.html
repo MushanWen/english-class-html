@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Unit 5 3a Reading Engine V18 第21页Word Bank乱序版</title>
+<style>
+:root{
+  --bg:#f7f2e8; --paper:#fffdf7; --ink:#14264a; --muted:#6f7480;
+  --accent:#ef8b3a; --accent-soft:#fff0df; --blue:#4f93d8; --blue-soft:#eaf5ff;
+  --green:#3a9b68; --green-soft:#e8f6ee; --red:#cf4c4c; --red-soft:#fdeaea;
+  --line:#ded7c9; --shadow:0 10px 28px rgba(20,38,74,.09);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);font-family:Arial,"Microsoft YaHei",sans-serif;color:var(--ink);overflow:hidden}
+button{font:inherit}
+#app{height:100%;display:grid;grid-template-columns:minmax(0,64fr) minmax(380px,36fr);gap:14px;padding:14px}
+.panel{background:var(--paper);border:1px solid #eadfcd;border-radius:22px;box-shadow:var(--shadow);min-height:0}
+.article{padding:18px 22px;overflow:auto;position:relative}
+.article h1{font-size:30px;margin:0 0 12px;text-align:center;letter-spacing:.2px}
+.paragraph{position:relative;padding:11px 12px 11px 44px;margin:0 0 8px;border-radius:14px;transition:.2s;background:transparent}
+.paragraph .plabel{position:absolute;left:10px;top:14px;font-weight:800;font-size:14px;color:#a8a398}
+.paragraph.dim{opacity:.35}
+.paragraph.focus{background:#fffaf0;box-shadow:inset 4px 0 0 var(--accent)}
+.paragraph.hint2{background:var(--blue-soft);box-shadow:inset 4px 0 0 var(--blue)}
+.sentence{font-family:Georgia,"Times New Roman",serif;font-size:26px;line-height:1.72;display:inline;border-radius:6px;padding:2px 2px;cursor:default;transition:.16s;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.sentence.selectable{cursor:pointer}
+.sentence.selectable:hover{background:#f3eee3}
+.sentence.selected-good{background:var(--green-soft);box-shadow:0 0 0 2px rgba(58,155,104,.22)}
+.sentence.selected-bad{background:var(--red-soft);animation:shake .22s linear 1}
+.sentence.hint3{background:#fff2bf;box-shadow:0 0 0 2px rgba(239,139,58,.26)}
+.sentence.structure-hit{background:#ffe1bc;box-shadow:0 0 0 2px rgba(239,139,58,.32)}
+.kw{font-weight:800;text-decoration:underline;text-decoration-thickness:3px;text-decoration-color:var(--accent);text-underline-offset:4px}
+@keyframes shake{0%,100%{transform:translateX(0)}33%{transform:translateX(-5px)}66%{transform:translateX(5px)}}
+
+.task{padding:0;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.task-scroll{flex:1;min-height:0;overflow:auto;padding:24px 26px 84px;scrollbar-gutter:stable;overscroll-behavior:contain}
+.progress{position:absolute;top:12px;right:18px;font-size:13px;color:#999;font-weight:700}
+.en{font-size:44px;line-height:1.14;font-weight:900;letter-spacing:-.6px;margin:18px 0 8px}
+.zh{font-size:18px;line-height:1.5;color:var(--muted);font-weight:600;margin-bottom:20px}
+.prompt{font-size:18px;line-height:1.6;background:#faf7f0;border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.prompt strong{color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-size:17px;font-weight:800;cursor:pointer;background:#f0ece5;color:var(--ink);transition:.15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--ink);color:white}
+.btn.orange{background:var(--accent);color:white}
+.btn.blue{background:var(--blue);color:white}
+.btn.ghost{background:white;border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.feedback{min-height:54px;margin-top:14px;border-radius:14px;padding:12px 14px;font-size:16px;line-height:1.5;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--green-soft);color:#205f42}
+.feedback.warn{background:var(--accent-soft);color:#8b4c14}
+.feedback.bad{background:var(--red-soft);color:#8f2f2f}
+.answer{margin-top:14px;padding:15px 16px;background:var(--green-soft);border-radius:14px;font-size:22px;line-height:1.5;font-weight:800;display:none}
+.answer.show{display:block}
+.hintbox{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--blue-soft);font-size:16px;line-height:1.55;display:none}
+.hintbox.show{display:block}
+.smallzh{display:block;font-size:14px;color:#667;margin-top:4px}
+
+.list{display:grid;gap:8px;margin-top:2px}
+.list .item{background:#faf7f0;border:1px solid #eee5d8;border-radius:14px;padding:11px 13px;font-size:18px;font-weight:750}
+.map{margin-top:12px;display:grid;gap:7px}
+.map .m{font-size:16px;color:#536079;background:var(--blue-soft);border-radius:12px;padding:9px 12px}
+
+.nodes{display:grid;gap:9px;margin-top:4px}
+.node{border:1px solid #e9dcc8;background:#fff9ef;border-radius:15px;padding:11px 13px;cursor:pointer;text-align:left}
+.node .lab{font-size:19px;font-weight:900;color:var(--accent)}
+.node .sub{font-size:15px;margin-top:3px;color:#5d6470}
+.node.active{background:#ffe6c8;border-color:#f0aa68}
+
+.reading-list{display:grid;gap:8px}
+.reading-item{border:1px solid #e8dfd1;border-radius:13px;padding:10px 12px;font-family:Georgia,"Times New Roman",serif;font-size:17px;cursor:pointer;background:#fff}
+.reading-item.active{background:#ffe6c8;border-color:#f0aa68}
+
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+.chain .chip{border:0;background:#fff1dd;color:#8b4c14;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;font-size:17px}
+.chain .arrow{font-size:20px;color:#aaa}
+
+.retell-list{display:grid;gap:10px;margin-top:10px}
+.retell-sentence{font-size:23px;line-height:1.55;font-weight:800;background:#fffdf8;border:1px solid #eadfce;border-radius:14px;padding:11px 14px}
+.blank{display:inline-flex;align-items:center;justify-content:center;min-width:84px;border:0;border-bottom:3px solid #d9a35f;background:#fff3df;color:#9a5718;border-radius:8px 8px 4px 4px;padding:2px 10px;margin:0 3px;font:inherit;font-weight:950;cursor:pointer}
+.blank.revealed{background:#e8f4ec;color:#245f3d;border-bottom-color:#5ca276}
+.retell-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.check-wrap{display:grid;gap:16px}
+.check-card{border:1px solid #e7dfd2;border-radius:16px;padding:18px;background:#fff}
+.check-stem{font-size:26px;font-weight:850;margin-bottom:14px;line-height:1.42}
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opt{border:1px solid #ddd4c7;background:#faf8f3;border-radius:13px;padding:13px 18px;font-size:21px;font-weight:800;cursor:pointer}
+.opt.selected{background:var(--blue-soft);border-color:#7caedc}
+.opt.right{background:var(--green-soft);border-color:#6bb98a}
+.opt.wrong{background:var(--red-soft);border-color:#dc8a8a}
+.check-note{font-size:17px;margin-top:10px;color:#777;min-height:22px}
+
+.bridge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bridge-grid .b{padding:12px;border-radius:14px;background:#fff5e8;font-size:20px;font-weight:900;text-align:center}
+.homework{display:grid;gap:10px}
+.homework .h{padding:12px 14px;border-radius:14px;background:#faf7f0;font-size:18px;font-weight:750}
+
+
+/* ===== V10 gradual transfer / dynamic resource panel ===== */
+
+/* ===== V11: high-scaffold transfer ===== */
+
+/* ===== V12: larger word bank + sentence translation + drag sorting ===== */
+
+/* ===== V14: per-sentence Chinese translation reveal ===== */
+.translation-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  margin-left:8px;
+  border:1px solid #d8cfbf;
+  border-radius:10px;
+  background:#fff;
+  color:#526276;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  vertical-align:middle;
+  touch-action:manipulation;
+  flex:none;
+}
+.translation-icon:hover{background:var(--blue-soft);border-color:#8ab5df}
+.translation-icon.on{background:var(--blue-soft);border-color:#7caedc;color:#315e87}
+.translation-line{
+  margin-top:8px;
+  padding:9px 11px;
+  border-radius:10px;
+  background:#f3f7fb;
+  color:#5c6674;
+  font-size:18px;
+  line-height:1.5;
+  font-weight:700;
+}
+.sentence-row-with-icon{
+  display:flex;
+  align-items:flex-start;
+  gap:4px;
+}
+.sentence-row-with-icon .sentence-main{
+  flex:1;
+  min-width:0;
+}
+.drag-card .translation-icon{
+  cursor:pointer;
+  align-self:flex-start;
+  margin-top:2px;
+}
+.drag-card{
+  grid-template-columns:44px 1fr;
+}
+.drag-line-head{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+.drag-line-head .drag-en{
+  flex:1;
+  min-width:0;
+}
+.drag-line-head .translation-icon{
+  margin-left:auto;
+  flex:none;
+  align-self:flex-start;
+}
+
+
+
+.sent-zh{
+  margin-top:7px;
+  font-size:18px;
+  line-height:1.5;
+  color:#69717d;
+  font-weight:700;
+}
+.model-zh{
+  margin-top:-8px;
+  margin-bottom:16px;
+  padding:0 4px;
+  font-size:18px;
+  line-height:1.5;
+  color:#69717d;
+  font-weight:700;
+}
+body[data-page="18"] .resource-title,
+body[data-page="19"] .resource-title{
+  font-size:34px;
+}
+body[data-page="18"] .word-chip,
+body[data-page="19"] .word-chip{
+  font-size:27px;
+  padding:14px 20px;
+  line-height:1.25;
+}
+body[data-page="18"] .word-bank,
+body[data-page="19"] .word-bank{
+  gap:14px;
+}
+.drag-tip{
+  margin:0 0 12px;
+  padding:11px 14px;
+  border-radius:13px;
+  background:var(--blue-soft);
+  color:#3f6488;
+  font-size:18px;
+  font-weight:850;
+}
+.drag-order-list{
+  display:grid;
+  gap:11px;
+  margin-top:10px;
+}
+.drag-card{
+  display:grid;
+  grid-template-columns:44px 1fr;
+  gap:12px;
+  align-items:center;
+  padding:15px 16px;
+  border:1px solid #e4dccf;
+  background:#fff;
+  border-radius:15px;
+  cursor:grab;
+  user-select:none;
+  transition:.14s;
+}
+.drag-card:active{cursor:grabbing}
+.drag-card.dragging{opacity:.45;transform:scale(.99)}
+.drag-card.drag-over{
+  border-color:var(--blue);
+  box-shadow:0 -4px 0 0 var(--blue);
+}
+.drag-handle{
+  width:36px;
+  height:42px;
+  border-radius:10px;
+  background:#f0ece5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#777;
+  font-size:24px;
+  font-weight:950;
+  letter-spacing:-3px;
+}
+.drag-text{min-width:0}
+.drag-en{
+  font-size:24px;
+  line-height:1.42;
+  font-weight:850;
+}
+.drag-zh{
+  margin-top:6px;
+  font-size:18px;
+  line-height:1.45;
+  color:#69717d;
+  font-weight:700;
+}
+
+#app.layout-balanced{grid-template-columns:minmax(0,54fr) minmax(430px,46fr)}
+#app.layout-rightwide{grid-template-columns:minmax(300px,34fr) minmax(0,66fr)}
+.article.transfer-resource{padding:0}
+.task.transfer-task .en{font-size:40px}
+.task.transfer-task .zh{font-size:20px;line-height:1.55}
+.task.transfer-task .task-scroll{padding:24px 30px 88px}
+.task.transfer-task .transfer-sentence{font-size:27px;line-height:1.65;padding:16px 18px}
+.task.transfer-task .transfer-blank{min-width:105px}
+.task.transfer-task .match-label{font-size:22px}
+.task.transfer-task .match-answer{font-size:22px;padding:14px 16px}
+.task.transfer-task .order-card .txt{font-size:24px;line-height:1.45}
+.task.transfer-task .order-card{padding:15px 16px}
+.task.transfer-task .output-line{font-size:26px;line-height:1.5;padding:15px 17px}
+.task.transfer-task .btn{font-size:19px}
+.name-bank{display:grid;gap:12px;margin:12px 0 16px}
+.name-card{padding:14px 16px;border:1px solid #eadfcd;border-radius:15px;background:#fffaf2}
+.name-main{font-size:25px;font-weight:950}
+.ipa{font-family:Arial,"Microsoft YaHei",sans-serif;font-size:18px;color:#687386;margin-top:5px;font-weight:700}
+.group-bank{display:grid;gap:10px}
+.group-row{border:1px solid #eadfcd;background:#fffaf2;border-radius:14px;padding:12px 14px}
+.group-label{font-size:16px;font-weight:950;color:var(--accent);margin-bottom:8px}
+.group-words{display:flex;flex-wrap:wrap;gap:8px}
+.transfer-static-list{display:grid;gap:11px;margin-top:8px}
+.transfer-static-item{font-size:23px;font-weight:900;padding:13px 15px;background:#fff5e8;border-radius:14px;border:1px solid #ecd4b5}
+
+.resource-wrap{padding:22px 24px;height:100%;overflow:auto}
+.resource-title{font-size:28px;font-weight:950;margin:0 0 16px;text-align:center}
+.resource-sub{font-size:16px;color:var(--muted);text-align:center;margin:-8px 0 18px}
+.slot-grid{display:grid;gap:10px}
+.slot-row{display:grid;grid-template-columns:128px 1fr;gap:12px;align-items:center;padding:13px 14px;border:1px solid #eadfcd;background:#fffaf2;border-radius:14px}
+.slot-label{font-size:17px;font-weight:950;color:var(--accent);letter-spacing:.4px}
+.slot-value{font-size:21px;font-weight:800;line-height:1.35}
+.fact-bank{display:grid;gap:12px}
+.fact-card{padding:15px 16px;border:1px solid #e7dece;background:#fff;border-radius:15px;font-size:21px;font-weight:800;line-height:1.4}
+.model-card{background:#eef6ff;border:1px solid #cfe0f4;border-radius:16px;padding:16px 18px;font-size:23px;line-height:1.5;font-weight:850;margin-bottom:16px}
+.word-bank{display:flex;flex-wrap:wrap;gap:10px}
+.word-chip{padding:10px 14px;border-radius:999px;background:#fff0df;color:#884a14;font-size:18px;font-weight:900;border:1px solid #f0d0aa}
+.structure-stack{display:grid;gap:10px;margin-top:8px}
+.structure-step{padding:13px 15px;border-radius:14px;background:#fff5e8;border:1px solid #ecd4b5;font-size:19px;font-weight:900;text-align:center}
+.structure-arrow{text-align:center;color:#aaa;font-size:20px;font-weight:900}
+.transfer-note{margin-top:14px;padding:13px 14px;border-radius:14px;background:#f5f2eb;font-size:16px;line-height:1.55;color:#596172}
+.match-grid{display:grid;gap:10px;margin-top:8px}
+.match-row{display:grid;grid-template-columns:115px 1fr;gap:10px;align-items:center}
+.match-label{font-size:18px;font-weight:950;color:var(--accent)}
+.match-answer{border:1px solid #ded6c8;background:#fff;border-radius:13px;padding:11px 13px;font-size:18px;font-weight:800;cursor:pointer;text-align:left}
+.match-answer.revealed{background:var(--green-soft);border-color:#90c6a8}
+.transfer-list{display:grid;gap:12px;margin-top:8px}
+.transfer-sentence{font-size:22px;line-height:1.55;font-weight:800;background:#fffdf8;border:1px solid #eadfce;border-radius:14px;padding:13px 15px}
+.transfer-blank{display:inline-flex;align-items:center;justify-content:center;min-width:90px;border:0;border-bottom:3px solid #d9a35f;background:#fff3df;color:#9a5718;border-radius:8px 8px 4px 4px;padding:2px 10px;margin:0 3px;font:inherit;font-weight:950;cursor:pointer}
+.transfer-blank.revealed{background:#e8f4ec;color:#245f3d;border-bottom-color:#5ca276}
+.frame-box{margin-top:16px;padding:15px 16px;background:var(--blue-soft);border-radius:14px;font-size:22px;line-height:1.5;font-weight:850;display:none}
+.frame-box.show{display:block}
+.sample-box{margin-top:14px;padding:16px;background:var(--green-soft);border-radius:14px;font-size:22px;line-height:1.5;font-weight:850;display:none}
+.sample-box.show{display:block}
+.order-list{display:grid;gap:10px;margin-top:10px}
+.order-card{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;padding:12px 13px;border:1px solid #e4dccf;background:#fff;border-radius:14px;cursor:pointer}
+.order-card .num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f0ece5;font-weight:950}
+.order-card .txt{font-size:19px;line-height:1.4;font-weight:800}
+.order-card.picked{background:var(--blue-soft);border-color:#8bb6df}
+.order-feedback{margin-top:12px;padding:12px 14px;border-radius:14px;font-size:17px;font-weight:800;display:none}
+.order-feedback.show{display:block}
+.output-lines{display:grid;gap:12px;margin-top:10px}
+.output-line{padding:13px 15px;border:1px dashed #d7c5ac;border-radius:14px;background:#fffaf2;font-size:22px;font-weight:850}
+.sample-paragraph{margin-top:14px;display:none;background:#eef8f2;border-radius:15px;padding:15px 17px}
+.sample-paragraph.show{display:block}
+.sample-paragraph p{margin:7px 0;font-size:20px;line-height:1.45;font-weight:750}
+
+.nav{position:absolute;left:22px;right:22px;bottom:18px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.nav .group{display:flex;gap:8px;pointer-events:auto}
+.navbtn{width:46px;height:42px;border:0;border-radius:14px;background:#ece7de;color:var(--ink);font-size:24px;font-weight:900;cursor:pointer;touch-action:manipulation}
+.navbtn:hover{background:#e1dbd0}
+.dots{display:flex;gap:5px;align-items:center;max-width:55%;overflow:hidden;pointer-events:auto}
+.dot{width:7px;height:7px;border-radius:99px;background:#d5cec2;flex:none;cursor:pointer;border:0;padding:0;touch-action:manipulation}
+.dot.active{width:20px;background:var(--accent)}
+
+@media (max-width:900px){
+ html,body{overflow:auto}
+ #app{height:auto;min-height:100%;grid-template-columns:1fr;padding:8px;gap:8px}
+ .article{max-height:58vh;padding:12px}
+ .task{height:42vh;min-height:360px;padding:0;overflow:hidden}
+ .task-scroll{padding:18px 18px 84px}
+ .sentence{font-size:20px;line-height:1.58}
+ .en{font-size:32px;margin-top:12px}
+ .zh{font-size:15px}
+ .progress{top:8px;right:14px}
+
+ .resource-wrap{padding:16px}
+ .resource-title{font-size:24px}
+ .slot-row{grid-template-columns:94px 1fr}
+ .slot-value,.fact-card,.model-card,.transfer-sentence,.output-line{font-size:18px}
+ .match-row{grid-template-columns:88px 1fr}
+
+ #app.layout-balanced,#app.layout-rightwide{grid-template-columns:1fr}
+ .task.transfer-task .en{font-size:30px}
+ .task.transfer-task .zh{font-size:16px}
+ .task.transfer-task .transfer-sentence,.task.transfer-task .output-line{font-size:19px}
+ .name-main{font-size:21px}
+ .drag-en{font-size:19px}
+ .drag-zh,.sent-zh{font-size:15px}
+ body[data-page="18"] .word-chip,body[data-page="19"] .word-chip{font-size:21px;padding:11px 15px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="panel article" id="articlePane"></section>
+  <section class="panel task" id="taskPane"></section>
+</div>
+<script>
+const lessonData = {"title":"The Invention of the Plane","paragraphs":[{"id":"p1","label":"P1","sentences":[{"id":"p1s1","text":"The invention of the plane has greatly changed the world."},{"id":"p1s2","text":"However, it seems that its inventors, Orville Wright and Wilbur Wright, were not looking to change the world at all."},{"id":"p1s3","text":"Rather, they just wanted to fly like birds."}]},{"id":"p2","label":"P2","sentences":[{"id":"p2s1","text":"To solve the problem of heavier-than-air flight, the Wright brothers began working with gliders."},{"id":"p2s2","text":"There were two main challenges."},{"id":"p2s3","text":"The first was how to get the glider into the air."},{"id":"p2s4","text":"The second was how to control it once it was flying."},{"id":"p2s5","text":"For both problems, they found their solutions by looking at how birds flew."},{"id":"p2s6","text":"After they solved these problems, they added an engine to the glider."},{"id":"p2s7","text":"Then, in December 1903, the world's first plane flights were made."}]},{"id":"p3","label":"P3","sentences":[{"id":"p3s1","text":"The invention of the plane has made our travels around the world much easier and faster."},{"id":"p3s2","text":"Journeys that once took days, weeks, or even months, can now be made in only a few hours."},{"id":"p3s3","text":"As a result, communication among people in different countries is now much easier, and the world has become a much smaller place."}]}],"steps":[{"type":"warmup","en":"Why did people want to fly?","zh":"人为什么想飞？","paragraph":null,"prompt":"Think first. You may answer in Chinese.","promptZh":"先想，不急着看课文。"},{"type":"overview","en":"What information do we need to find?","zh":"读之前，先看我们要找什么信息。","paragraph":null,"items":["What was invented?","Who were the inventors?","Why was it invented?","What challenges were met?","How was it invented?","When was it invented?","What was its effect?"],"map":["P1 → What / Who / Why","P2 → Challenges / How / When","P3 → Effect"]},{"type":"question","id":"q1","en":"What was invented?","zh":"发明了什么？","paragraph":"p1","evidence":["p1s1"],"answer":"The plane.","hint1":"Look at Paragraph 1.","hint1zh":"看第1段。","hint2":"Find the key noun in the first sentence.","hint2zh":"找第一句里的核心名词。","keywords":{"p1s1":["plane"]}},{"type":"question","id":"q2","en":"Who were the inventors?","zh":"谁是发明者？","paragraph":"p1","evidence":["p1s2"],"answer":"Orville Wright and Wilbur Wright — the Wright brothers.","hint1":"Stay in Paragraph 1.","hint1zh":"仍然看第1段。","hint2":"Look for two names.","hint2zh":"找两个人名。","keywords":{"p1s2":["Orville Wright","Wilbur Wright"]}},{"type":"question","id":"q3","en":"Why was it invented?","zh":"为什么发明飞机？","paragraph":"p1","evidence":["p1s3"],"answer":"They wanted to fly like birds.","hint1":"Look at the end of Paragraph 1.","hint1zh":"看第1段末尾。","hint2":"Find the sentence after “Rather”.","hint2zh":"找 Rather 后面的句子。","keywords":{"p1s3":["wanted to fly like birds"]},"diagnosis":{"p1s1":"This sentence tells the effect, not the original reason.","p1s2":"This tells us what they were NOT looking to do. Keep reading."}},{"type":"question","id":"q4","en":"What challenges were met?","zh":"他们遇到了哪两个挑战？","paragraph":"p2","evidence":["p2s3","p2s4"],"answer":"1) Get the glider into the air.  2) Control it once it was flying.","hint1":"Look at Paragraph 2.","hint1zh":"看第2段。","hint2":"Find “The first ...” and “The second ...”.","hint2zh":"找 The first 和 The second。","keywords":{"p2s3":["The first","get the glider into the air"],"p2s4":["The second","control it"]},"diagnosis":{"p2s2":"You found the entrance: there were two challenges. Now find what the two challenges were."}},{"type":"question","id":"q5","en":"How was it invented?","zh":"他们怎样解决问题并推进发明？","paragraph":"p2","evidence":["p2s5","p2s6"],"answer":"They looked at how birds flew, solved the problems, and added an engine to the glider.","hint1":"Stay in Paragraph 2.","hint1zh":"仍然看第2段。","hint2":"Look for “by looking at ...” and “added ...”.","hint2zh":"找 by looking at... 和 added...。","keywords":{"p2s5":["by looking at how birds flew"],"p2s6":["added an engine"]},"diagnosis":{"p2s7":"This tells the time/result of success, not how they solved the problem."}},{"type":"question","id":"q6","en":"When was it invented?","zh":"什么时候实现了世界上第一次飞机飞行？","paragraph":"p2","evidence":["p2s7"],"answer":"In December 1903.","hint1":"Look at the last sentence of Paragraph 2.","hint1zh":"看第2段最后一句。","hint2":"Find a date.","hint2zh":"找时间。","keywords":{"p2s7":["December 1903","first plane flights"]}},{"type":"question","id":"q7","en":"What was its effect?","zh":"飞机带来了什么影响？","paragraph":"p3","evidence":["p3s1","p3s3"],"supporting":["p3s2"],"answer":"Travel became much easier and faster, and communication became much easier.","hint1":"Look at Paragraph 3.","hint1zh":"看第3段。","hint2":"Find “easier / faster / communication”.","hint2zh":"找 easier、faster、communication。","keywords":{"p3s1":["easier and faster"],"p3s3":["communication","much easier"]},"diagnosis":{"p3s2":"This is useful supporting evidence. Now find the sentence that directly states the effect."}},{"type":"question","id":"q8","en":"What does “a much smaller place” mean?","zh":"“世界变得更小”真的指地球变小了吗？","paragraph":"p3","evidence":["p3s2","p3s3"],"answer":"No. Travel and communication are faster/easier, so distance feels smaller.","hint1":"Use the Before → Now change in Paragraph 3.","hint1zh":"看第3段的今昔变化。","hint2":"Compare “days / weeks / months” with “a few hours”.","hint2zh":"比较过去的几天/几周/几个月和现在的几小时。","keywords":{"p3s2":["days, weeks, or even months","a few hours"],"p3s3":["communication","smaller place"]}},{"type":"structure","en":"How is the story organized?","zh":"把证据重新组织成一条信息链。","nodes":[{"label":"WHY","sub":"fly like birds","evidence":["p1s3"]},{"label":"CHALLENGES","sub":"get into the air / control it","evidence":["p2s3","p2s4"]},{"label":"SOLUTIONS","sub":"look at birds → add an engine","evidence":["p2s5","p2s6"]},{"label":"SUCCESS","sub":"December 1903","evidence":["p2s7"]},{"label":"EFFECT","sub":"travel & communication easier","evidence":["p3s1","p3s3"]}]},{"type":"reading","en":"Read the key sentences aloud.","zh":"朗读关键句。","sentences":["p1s3","p2s3","p2s4","p2s5","p2s6","p2s7","p3s1"]},{"type":"retell","en":"Complete the retell.","zh":"根据句型填空：每空只填一个词或数字。","sentences":[{"before":"The Wright brothers wanted to fly like ","answer":"birds","after":".","evidence":["p1s3"]},{"before":"They met two main ","answer":"challenges","after":".","evidence":["p2s2"]},{"before":"The first challenge was to get the glider into the ","answer":"air","after":".","evidence":["p2s3"]},{"before":"The second was to ","answer":"control","after":" it once it was flying.","evidence":["p2s4"]},{"before":"They found their solutions by looking at how ","answer":"birds","after":" flew.","evidence":["p2s5"]},{"before":"Then they added an ","answer":"engine","after":" to the glider.","evidence":["p2s6"]},{"before":"In December ","answer":"1903","after":", the world's first plane flights were made.","evidence":["p2s7"]},{"before":"The plane made travel easier and ","answer":"faster","after":".","evidence":["p3s1"]},{"before":"Communication became much ","answer":"easier","after":".","evidence":["p3s3"]}]},{"type":"check","en":"Mini Check","zh":"不看答案，独立完成。","items":[{"type":"choice","stem":"The world's first plane flights ____ made in 1903.","options":["was","were","have"],"answer":"were"},{"type":"choice","stem":"Which came first?","options":["add an engine","look at how birds flew","first plane flights"],"answer":"look at how birds flew"},{"type":"multi","stem":"Choose TWO effects of the plane.","options":["Travel became easier and faster.","Communication became easier.","The Earth became physically smaller."],"answer":["Travel became easier and faster.","Communication became easier."]}]},{"type":"transfer_intro","layout":"balanced","en":"What information helps us introduce an invention?","zh":"先看结构，不造句。刚才的飞机故事其实一直在回答这些问题。","resourceTitle":"Plane · Information Bank","slots":[{"label":"WHAT","value":"plane"},{"label":"WHO","value":"the Wright brothers"},{"label":"WHEN","value":"1903"},{"label":"WHY","value":"wanted to fly like birds"},{"label":"PROBLEM","value":"get into the air / control it"},{"label":"HOW","value":"look at birds / add an engine"},{"label":"EFFECT","value":"travel easier and faster"}],"items":["What?","Who?","When?","Why / Problem?","How?","Effect?"],"note":"These information slots can be used again when we talk about another invention."},{"type":"fact_match","layout":"balanced","en":"Match the information.","zh":"左边顺序已经打乱。先说每条信息属于 WHO / WHEN / PROBLEM / HOW / EFFECT 中的哪一类，再点右侧核对。","resourceTitle":"Sticky Notes · Fact Bank","facts":["popular / widely used","weak glue / paper fell to the floor","Spencer Silver & Arthur Fry","use the weak glue on pieces of paper","1968 → 1974"],"matches":[{"label":"WHO","value":"Spencer Silver & Arthur Fry"},{"label":"WHEN","value":"1968 → 1974"},{"label":"PROBLEM","value":"weak glue / paper fell to the floor"},{"label":"HOW","value":"use the weak glue on pieces of paper"},{"label":"EFFECT","value":"popular / widely used"}]},{"type":"transfer_fill","layout":"rightwide","en":"Change ONE sentence.","zh":"先读人名，再只替换信息。句型不变。","resourceTitle":"Names + Model","model":"The plane was invented by the Wright brothers.","nameBank":[{"name":"Spencer Silver","ipa":"/ˈspensər ˈsɪlvər/"},{"name":"Arthur Fry","ipa":"/ˈɑːrθər fraɪ/"}],"bank":["sticky notes"],"sentences":[{"parts":[{"text":"Sticky notes were invented by "},{"blank":"Spencer Silver"},{"text":" and "},{"blank":"Arthur Fry"},{"text":"."}],"zh":"便利贴是由斯宾塞·西尔弗和阿瑟·弗莱发明的。"}],"modelZh":"飞机是由莱特兄弟发明的。"},{"type":"transfer_fill","layout":"rightwide","en":"Complete the sentences.","zh":"词都在左边。每句只补一个关键信息，先读完整句，再填空。","resourceTitle":"Word Bank","bank":["production","paper","used","1968","weak"],"sentences":[{"parts":[{"text":"The story began in "},{"blank":"1968"},{"text":"."}],"zh":"这个故事开始于1968年。"},{"parts":[{"text":"At first, Silver produced a "},{"blank":"weak"},{"text":" glue."}],"zh":"起初，西尔弗制出了一种黏性很弱的胶水。"},{"parts":[{"text":"Later, Fry used the glue on pieces of "},{"blank":"paper"},{"text":"."}],"zh":"后来，弗莱把这种胶水用在了一小片一小片的纸上。"},{"parts":[{"text":"His idea resulted in the "},{"blank":"production"},{"text":" of sticky notes."}],"zh":"他的想法促成了便利贴的生产。"},{"parts":[{"text":"Now they are widely "},{"blank":"used"},{"text":" around the world."}],"zh":"现在，便利贴在世界各地被广泛使用。"}]},{"type":"transfer_fill","layout":"rightwide","en":"One more step: complete TWO effect sentences.","zh":"还不要求自己造句。先把“影响”说成两个简单句。","resourceTitle":"Effect · Word Bank","bank":["used","popular"],"sentences":[{"parts":[{"text":"Sticky notes became "},{"blank":"popular"},{"text":"."}],"zh":"便利贴逐渐流行起来。"},{"parts":[{"text":"They are now widely "},{"blank":"used"},{"text":" around the world."}],"zh":"现在，它们在世界各地被广泛使用。"}]},{"type":"order_sentences","layout":"rightwide","en":"Put the FIVE sentences in order.","zh":"按住句子上下拖动，排成清楚的故事顺序。","resourceTitle":"Story Structure","structure":["WHO / WHAT","WHEN","PROBLEM","HOW","EFFECT"],"sentences":[{"id":"sA","text":"Later, Fry used the glue on pieces of paper.","zh":"后来，弗莱把这种胶水用在了一小片一小片的纸上。"},{"id":"sB","text":"Sticky notes are now popular and widely used around the world.","zh":"现在，便利贴在世界各地很受欢迎，并且被广泛使用。"},{"id":"sC","text":"Sticky notes were invented by Spencer Silver and Arthur Fry.","zh":"便利贴是由斯宾塞·西尔弗和阿瑟·弗莱发明的。"},{"id":"sD","text":"The story began in 1968.","zh":"这个故事开始于1968年。"},{"id":"sE","text":"At first, Silver produced a weak glue.","zh":"起初，西尔弗制出了一种黏性很弱的胶水。"}],"answer":["sC","sD","sE","sA","sB"],"dragTip":"拖动整张句子卡片，上下调整顺序。"},{"type":"guided_output","layout":"rightwide","en":"Complete each sentence, then translate it.","zh":"先完成填空，再口头翻译整句。需要核对时，只点这一句后面的中文图标。","resourceTitle":"Word Bank · Fill → Translate","groups":[{"label":"1 WHO / WHAT","words":["Arthur Fry","invented","Spencer Silver"]},{"label":"2 WHEN","words":["1968","began"]},{"label":"3 PROBLEM","words":["glue","Silver","weak"]},{"label":"4 HOW","words":["pieces of paper","Fry","glue"]},{"label":"5 EFFECT","words":["around the world","popular","widely used"]}],"sentences":[{"parts":[{"text":"Sticky notes were "},{"blank":"invented"},{"text":" by "},{"blank":"Spencer Silver"},{"text":" and "},{"blank":"Arthur Fry"},{"text":"."}],"zh":"便利贴是由斯宾塞·西尔弗和阿瑟·弗莱发明的。"},{"parts":[{"text":"The story "},{"blank":"began"},{"text":" in "},{"blank":"1968"},{"text":"."}],"zh":"这个故事开始于1968年。"},{"parts":[{"text":"At first, "},{"blank":"Silver"},{"text":" produced a "},{"blank":"weak"},{"text":" "},{"blank":"glue"},{"text":"."}],"zh":"起初，西尔弗制出了一种黏性很弱的胶水。"},{"parts":[{"text":"Later, "},{"blank":"Fry"},{"text":" used the "},{"blank":"glue"},{"text":" on "},{"blank":"pieces of paper"},{"text":"."}],"zh":"后来，弗莱把这种胶水用在了一小片一小片的纸上。"},{"parts":[{"text":"Now sticky notes are "},{"blank":"popular"},{"text":" and "},{"blank":"widely used"},{"text":" "},{"blank":"around the world"},{"text":"."}],"zh":"现在，便利贴很受欢迎，并且在世界各地被广泛使用。"}]},{"type":"short_output","layout":"rightwide","en":"IF TIME · Retell with less help.","zh":"有时间再做。句框撤掉，但左侧仍保留结构和关键词。","resourceTitle":"Structure + Key Words","groups":[{"label":"WHO / WHAT","words":["sticky notes","Silver","Fry"]},{"label":"WHEN","words":["1968"]},{"label":"PROBLEM","words":["weak glue"]},{"label":"HOW","words":["glue","pieces of paper"]},{"label":"EFFECT","words":["popular","widely used"]}],"starters":["Sticky notes ...","The story ...","At first, ...","Later, ...","Now, ..."],"sample":["Sticky notes were invented by Spencer Silver and Arthur Fry.","The story began in 1968.","At first, Silver produced a weak glue.","Later, Fry used the glue on pieces of paper.","Now sticky notes are popular and widely used around the world."],"starterZh":["便利贴是由斯宾塞·西尔弗和阿瑟·弗莱发明的。","这个故事开始于1968年。","起初，西尔弗制出了一种黏性很弱的胶水。","后来，弗莱把这种胶水用在了一小片一小片的纸上。","现在，便利贴很受欢迎，并且在世界各地被广泛使用。"]},{"type":"homework_transfer","layout":"balanced","en":"Homework","zh":"只巩固今天已经练过的句子，不要求独立写完整作文。","resourceTitle":"After Class","items":["Read the 5-sentence Sticky Notes story twice.","Cover the completed sentences and retell with the Word Bank.","Optional: choose ONE invention and only collect WHAT / WHO / WHEN / WHY / HOW / EFFECT."]}]};
+
+const state = {
+  step:0,
+  selecting:false,
+  selected:new Set(),
+  hintLevel:0,
+  answerShown:false,
+  structureEvidence:[],
+  activeNode:null,
+  readingActive:null,
+  checkSelections:{},
+  retellRevealed:new Set(),
+  factRevealed:new Set(),
+  transferRevealed:new Set(),
+  frameShown:false,
+  sampleShown:false,
+  orderPicked:[],
+  orderChecked:false,
+  revealedTranslations:new Set(),
+};
+
+const sentenceById = {};
+const paragraphBySentence = {};
+lessonData.paragraphs.forEach(p=>p.sentences.forEach(s=>{sentenceById[s.id]=s;paragraphBySentence[s.id]=p.id;}));
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function current(){return lessonData.steps[state.step];}
+function translationKey(prefix,index){return `${state.step}:${prefix}:${index}`;}
+function isTranslationShown(key){return state.revealedTranslations.has(key);}
+function translationIconMarkup(key){
+  const shown=isTranslationShown(key);
+  return `<button class="translation-icon ${shown?'on':''}" data-translation="${esc(key)}" title="${shown?'隐藏汉语':'显示汉语'}" aria-label="${shown?'隐藏汉语':'显示汉语'}">译</button>`;
+}
+function clearTransient(){
+  state.selecting=false;state.selected=new Set();state.hintLevel=0;state.answerShown=false;
+  state.structureEvidence=[];state.activeNode=null;state.readingActive=null;state.retellRevealed=new Set();
+  state.factRevealed=new Set();state.transferRevealed=new Set();state.frameShown=false;
+  state.sampleShown=false;state.orderPicked=[];state.orderChecked=false;state.revealedTranslations=new Set();
+}
+
+function highlightedText(text, terms=[]){
+  let out=esc(text);
+  // longest first to avoid nested replacements
+  [...terms].sort((a,b)=>b.length-a.length).forEach(t=>{
+    const safe=esc(t);
+    out=out.split(safe).join(`<span class="kw">${safe}</span>`);
+  });
+  return out;
+}
+
+function articleMarkup(){
+  const step=current();
+  const focusPara=step.paragraph || null;
+  let html=`<h1>${esc(lessonData.title)}</h1>`;
+  for(const p of lessonData.paragraphs){
+    let pcls='paragraph';
+    if(focusPara){ pcls += p.id===focusPara ? ' focus' : ' dim'; }
+    if(state.hintLevel>=2 && step.type==='question' && p.id===step.paragraph) pcls+=' hint2';
+    html+=`<div class="${pcls}" data-pid="${p.id}"><span class="plabel">${p.label}</span>`;
+    for(const s of p.sentences){
+      let cls='sentence';
+      if(state.selecting && step.type==='question') cls+=' selectable';
+      if(state.selected.has(s.id)) cls += (step.evidence||[]).includes(s.id) ? ' selected-good' : ' selected-bad';
+      if(state.hintLevel>=3 && step.type==='question' && (step.evidence||[]).includes(s.id)) cls+=' hint3';
+      if((state.structureEvidence||[]).includes(s.id)) cls+=' structure-hit';
+      const terms=(state.hintLevel>=3 && step.type==='question' && step.keywords && step.keywords[s.id]) ? step.keywords[s.id] : [];
+      html+=`<span class="${cls}" data-sid="${s.id}">${highlightedText(s.text,terms)}</span> `;
+    }
+    html+='</div>';
+  }
+  return html;
+}
+
+
+function isTransferStep(step){
+  return ['transfer_intro','fact_match','transfer_fill','guided_output','make_sentence','order_sentences','short_output','homework_transfer'].includes(step.type);
+}
+
+function bankGroupsMarkup(groups){
+  return `<div class="group-bank">`+(groups||[]).map(g=>`<div class="group-row"><div class="group-label">${esc(g.label)}</div><div class="group-words">${g.words.map(w=>`<span class="word-chip">${esc(w)}</span>`).join('')}</div></div>`).join('')+`</div>`;
+}
+
+function resourceMarkup(step){
+  let html=`<div class="resource-wrap"><div class="resource-title">${esc(step.resourceTitle||'Learning Resource')}</div>`;
+  if(step.type==='transfer_intro'){
+    html+=`<div class="resource-sub">飞机原文先退出；左侧只保留我们已经提取出的信息。</div><div class="slot-grid">`;
+    html+=step.slots.map(x=>`<div class="slot-row"><div class="slot-label">${esc(x.label)}</div><div class="slot-value">${esc(x.value)}</div></div>`).join('');
+    html+=`</div>`;
+  }else if(step.type==='fact_match'){
+    html+=`<div class="resource-sub">顺序已打乱。先找类别，再核对。</div><div class="fact-bank">`;
+    html+=step.facts.map((x,i)=>`<div class="fact-card"><span style="color:#aaa;font-size:15px;font-weight:900;margin-right:8px">${String.fromCharCode(65+i)}</span>${esc(x)}</div>`).join('');
+    html+=`</div>`;
+  }else if(step.type==='transfer_fill' || step.type==='guided_output'){
+    if(step.model){
+      const key=translationKey('model',0);
+      html+=`<div class="model-card"><div class="sentence-row-with-icon"><div class="sentence-main">${esc(step.model)}</div>${step.modelZh?translationIconMarkup(key):''}</div>${(step.modelZh&&isTranslationShown(key))?`<div class="translation-line">${esc(step.modelZh)}</div>`:''}</div>`;
+    }
+    if(step.nameBank?.length){
+      html+=`<div class="name-bank">${step.nameBank.map(x=>`<div class="name-card"><div class="name-main">${esc(x.name)}</div><div class="ipa">${esc(x.ipa)}</div></div>`).join('')}</div>`;
+    }
+    if(step.groups?.length) html+=bankGroupsMarkup(step.groups);
+    else if(step.bank?.length) html+=`<div class="word-bank">${step.bank.map(x=>`<span class="word-chip">${esc(x)}</span>`).join('')}</div>`;
+    html+=`<div class="transfer-note">${step.type==='guided_output'?'每一组提示词只服务一行。先看提示，再补句子。':step.model?'先读范句，再只换信息。':'所有需要填写的词都在左边。'}</div>`;
+  }else if(step.type==='make_sentence'){
+    html+=`<div class="slot-grid">`;
+    step.info.forEach((x,i)=>html+=`<div class="slot-row"><div class="slot-label">${i===0?'主题':'提示词'}</div><div class="slot-value">${esc(x)}</div></div>`);
+    html+=`</div>`;
+  }else if(step.type==='order_sentences'){
+    html+=`<div class="structure-stack">`;
+    step.structure.forEach((x,i)=>{
+      if(i) html+=`<div class="structure-arrow">↓</div>`;
+      html+=`<div class="structure-step">${esc(x)}</div>`;
+    });
+    html+=`</div><div class="transfer-note">右边都是已经练过的句子。这一步只练顺序。</div>`;
+  }else if(step.type==='short_output'){
+    html+=bankGroupsMarkup(step.groups||[]);
+    html+=`<div class="transfer-note">这是撤掉句框后的第二轮复述。左侧关键词仍然保留。</div>`;
+  }else if(step.type==='homework_transfer'){
+    html+=`<div class="structure-stack">`;
+    ['WHAT','WHO','WHEN','WHY / PROBLEM','HOW','EFFECT'].forEach((x,i)=>{
+      if(i) html+=`<div class="structure-arrow">↓</div>`;
+      html+=`<div class="structure-step">${esc(x)}</div>`;
+    });
+    html+=`</div>`;
+  }
+  return html+`</div>`;
+}
+
+function leftPaneMarkup(){
+  const step=current();
+  return isTransferStep(step)?resourceMarkup(step):articleMarkup();
+}
+
+function evidenceComplete(step){
+  return (step.evidence||[]).every(id=>state.selected.has(id));
+}
+
+function qActions(step){
+  const done=evidenceComplete(step);
+  return `<div class="actions">
+    <button class="btn primary" id="evidenceBtn">${state.selecting?'正在选证据…':'去原文找证据'}</button>
+    <button class="btn blue" id="hintBtn">${state.hintLevel===0?'提示':state.hintLevel<3?'再提示':'提示已到第3级'}</button>
+    <button class="btn orange" id="answerBtn" ${done?'':'disabled'}>显示答案</button>
+    <button class="btn ghost" id="resetBtn">重置本题</button>
+  </div>`;
+}
+
+
+function transferSentenceMarkup(step){
+  let blankIdx=0;
+  return `<div class="transfer-list">`+step.sentences.map((s,i)=>{
+    const body=s.parts.map(p=>{
+      if(p.text!==undefined) return esc(p.text);
+      const my=blankIdx++;
+      const shown=state.transferRevealed.has(my);
+      return `<button class="transfer-blank ${shown?'revealed':''}" data-transferblank="${my}">${shown?esc(p.blank):'______'}</button>`;
+    }).join('');
+    const key=translationKey('fill',i);
+    return `<div class="transfer-sentence">
+      <div class="sentence-row-with-icon">
+        <div class="sentence-main">${body}</div>
+        ${s.zh?translationIconMarkup(key):''}
+      </div>
+      ${(s.zh&&isTranslationShown(key))?`<div class="translation-line">${esc(s.zh)}</div>`:''}
+    </div>`;
+  }).join('')+`</div><div class="retell-tools"><button class="btn ghost" id="showAllTransfer">显示全部</button><button class="btn ghost" id="hideAllTransfer">全部隐藏</button></div>`;
+}
+
+function matchMarkup(step){
+  return `<div class="match-grid">`+step.matches.map((x,i)=>{
+    const shown=state.factRevealed.has(i);
+    return `<div class="match-row"><div class="match-label">${esc(x.label)}</div><button class="match-answer ${shown?'revealed':''}" data-fact="${i}">${shown?esc(x.value):'点击后核对'}</button></div>`;
+  }).join('')+`</div><div class="transfer-note">先口头判断，再点击核对。不要一开始就把答案全部打开。</div>`;
+}
+
+function orderMarkup(step){
+  if(!state.orderPicked.length) state.orderPicked=step.sentences.map(s=>s.id);
+  const byId=Object.fromEntries(step.sentences.map(s=>[s.id,s]));
+  const cards=state.orderPicked.map((id,pos)=>{
+    const s=byId[id];
+    const key=translationKey('drag',s.id);
+    return `<div class="drag-card" draggable="true" data-dragorder="${esc(s.id)}">
+      <div class="drag-handle">⋮⋮</div>
+      <div class="drag-text">
+        <div class="drag-line-head">
+          <div class="drag-en">${esc(s.text)}</div>
+          ${s.zh?translationIconMarkup(key):''}
+        </div>
+        ${(s.zh&&isTranslationShown(key))?`<div class="translation-line">${esc(s.zh)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="drag-tip">${esc(step.dragTip||'按住句子上下拖动，调整顺序。')}</div>
+    <div class="drag-order-list">${cards}</div>
+    <div class="actions"><button class="btn primary" id="checkOrder">检查顺序</button><button class="btn ghost" id="resetOrder">恢复原顺序</button></div>
+    <div class="order-feedback ${state.orderChecked?'show':''}" id="orderFeedback"></div>`;
+}
+
+function taskMarkup(){
+  const step=current();
+  let html=`<div class="progress">${state.step+1} / ${lessonData.steps.length}</div><div class="en">${esc(step.en||'')}</div><div class="zh">${esc(step.zh||'')}</div>`;
+  if(step.type==='warmup'){
+    html+=`<div class="prompt">${esc(step.prompt)}<span class="smallzh">${esc(step.promptZh)}</span></div>`;
+  } else if(step.type==='overview'){
+    html+=`<div class="list">${step.items.map(x=>`<div class="item">${esc(x)}</div>`).join('')}</div><div class="map">${step.map.map(x=>`<div class="m">${esc(x)}</div>`).join('')}</div>`;
+  } else if(step.type==='question'){
+    html+=qActions(step);
+    html+=`<div class="hintbox ${state.hintLevel?'show':''}" id="hintBox">${state.hintLevel?hintText(step):''}</div>`;
+    html+=`<div class="feedback" id="feedback"></div>`;
+    html+=`<div class="answer ${state.answerShown?'show':''}" id="answerBox">${state.answerShown?esc(step.answer):''}</div>`;
+  } else if(step.type==='structure'){
+    html+=`<div class="nodes">${step.nodes.map((n,i)=>`<button class="node ${state.activeNode===i?'active':''}" data-node="${i}"><div class="lab">${esc(n.label)}</div><div class="sub">${esc(n.sub)}</div></button>`).join('')}</div>`;
+  } else if(step.type==='reading'){
+    html+=`<div class="reading-list">${step.sentences.map(id=>`<button class="reading-item ${state.readingActive===id?'active':''}" data-read="${id}">${esc(sentenceById[id].text)}</button>`).join('')}</div>`;
+  } else if(step.type==='retell'){
+    html+=`<div class="retell-list">${step.sentences.map((x,i)=>`<div class="retell-sentence">${esc(x.before)}<button class="blank ${state.retellRevealed.has(i)?'revealed':''}" data-blank="${i}">${state.retellRevealed.has(i)?esc(x.answer):'______'}</button>${esc(x.after)}</div>`).join('')}</div>`;
+    html+=`<div class="retell-tools"><button class="btn ghost" id="showAllRetell">显示全部</button><button class="btn ghost" id="hideAllRetell">全部隐藏</button></div>`;
+  } else if(step.type==='check'){
+    html+=`<div class="check-wrap">${step.items.map((it,i)=>checkCard(it,i)).join('')}</div>`;
+  } else if(step.type==='bridge'){
+    html+=`<div class="bridge-grid">${step.items.map(x=>`<div class="b">${esc(x)}</div>`).join('')}</div>`;
+  } else if(step.type==='homework'){
+    html+=`<div class="homework">${step.items.map((x,i)=>`<div class="h">${i+1}. ${esc(x)}</div>`).join('')}</div>`;
+  } else if(step.type==='transfer_intro'){
+    html+=`<div class="transfer-static-list">${step.items.map(x=>`<div class="transfer-static-item">${esc(x)}</div>`).join('')}</div><div class="transfer-note">${esc(step.note)}</div>`;
+  } else if(step.type==='fact_match'){
+    html+=matchMarkup(step);
+  } else if(step.type==='transfer_fill' || step.type==='guided_output'){
+    html+=transferSentenceMarkup(step);
+  } else if(step.type==='make_sentence'){
+    html+=`<div class="prompt"><strong>Try first.</strong><span class="smallzh">先口头说一句，再决定是否需要句框。</span></div><div class="actions"><button class="btn blue" id="showFrame">需要句框</button><button class="btn orange" id="showSample">显示示例</button></div><div class="frame-box ${state.frameShown?'show':''}">${state.frameShown?esc(step.frame):''}</div><div class="sample-box ${state.sampleShown?'show':''}">${state.sampleShown?esc(step.sample):''}</div>`;
+  } else if(step.type==='order_sentences'){
+    html+=orderMarkup(step);
+  } else if(step.type==='short_output'){
+    html+=`<div class="output-lines">${step.starters.map((x,i)=>{
+      const key=translationKey('starter',i);
+      return `<div class="output-line"><div class="sentence-row-with-icon"><div class="sentence-main">${esc(x)}</div>${step.starterZh?.[i]?translationIconMarkup(key):''}</div>${(step.starterZh?.[i]&&isTranslationShown(key))?`<div class="translation-line">${esc(step.starterZh[i])}</div>`:''}</div>`;
+    }).join('')}</div><div class="actions"><button class="btn orange" id="showOutputSample">学生说完后显示示例</button></div><div class="sample-paragraph ${state.sampleShown?'show':''}">${state.sampleShown?step.sample.map(x=>`<p>${esc(x)}</p>`).join(''):''}</div>`;
+  } else if(step.type==='homework_transfer'){
+    html+=`<div class="homework">${step.items.map((x,i)=>`<div class="h">${i+1}. ${esc(x)}</div>`).join('')}</div>`;
+  }
+  return `<div class="task-scroll" id="taskScroll">${html}</div>${navMarkup()}`;
+}
+
+function hintText(step){
+  if(state.hintLevel===1) return `${esc(step.hint1)}<span class="smallzh">${esc(step.hint1zh)}</span>`;
+  if(state.hintLevel===2) return `${esc(step.hint2)}<span class="smallzh">${esc(step.hint2zh)}</span>`;
+  return `The evidence sentence is now highlighted. Click it yourself.<span class="smallzh">证据句已高亮，但仍由学生自己点击完成定位。</span>`;
+}
+
+function checkCard(it,i){
+  const selected=state.checkSelections[i]||[];
+  const opts=it.options.map(o=>{
+    let cls='opt';
+    if(selected.includes(o)) cls+=' selected';
+    return `<button class="${cls}" data-check="${i}" data-option="${esc(o)}">${esc(o)}</button>`;
+  }).join('');
+  return `<div class="check-card"><div class="check-stem">${esc(it.stem)}</div><div class="opts">${opts}</div><div class="check-note" id="note-${i}"></div></div>`;
+}
+
+function navMarkup(){
+  const dots=lessonData.steps.map((_,i)=>`<button class="dot ${i===state.step?'active':''}" data-jump="${i}"></button>`).join('');
+  return `<div class="nav"><div class="group"><button class="navbtn" id="prevBtn">‹</button><button class="navbtn" id="nextBtn">›</button></div><div class="dots">${dots}</div></div>`;
+}
+
+function render(forceTaskScroll){
+  const oldScroll=document.getElementById('taskScroll')?.scrollTop||0;
+  const step=current();
+  document.body.dataset.page=String(state.step+1);
+  const app=document.getElementById('app');
+  app.classList.remove('layout-balanced','layout-rightwide');
+  if(step.layout==='balanced') app.classList.add('layout-balanced');
+  if(step.layout==='rightwide') app.classList.add('layout-rightwide');
+  const article=document.getElementById('articlePane');
+  const task=document.getElementById('taskPane');
+  article.classList.toggle('transfer-resource',isTransferStep(step));
+  task.classList.toggle('transfer-task',isTransferStep(step));
+  article.innerHTML=leftPaneMarkup();
+  task.innerHTML=taskMarkup();
+  bind();
+  const scroller=document.getElementById('taskScroll');
+  if(scroller) scroller.scrollTop=(forceTaskScroll===undefined?oldScroll:forceTaskScroll);
+}
+
+function bind(){
+  document.querySelectorAll('.sentence.selectable').forEach(el=>el.addEventListener('click',()=>onSentenceClick(el.dataset.sid)));
+  const ev=document.getElementById('evidenceBtn'); if(ev) ev.onclick=()=>{state.selecting=true;render();};
+  const hb=document.getElementById('hintBtn'); if(hb) hb.onclick=()=>{state.hintLevel=Math.min(3,state.hintLevel+1);render();};
+  const ab=document.getElementById('answerBtn'); if(ab) ab.onclick=()=>{state.answerShown=true;render();};
+  const rb=document.getElementById('resetBtn'); if(rb) rb.onclick=()=>{state.selecting=false;state.selected=new Set();state.hintLevel=0;state.answerShown=false;render();};
+  document.querySelectorAll('[data-node]').forEach(el=>el.onclick=()=>{const i=+el.dataset.node;state.activeNode=i;state.structureEvidence=current().nodes[i].evidence;render();});
+  document.querySelectorAll('[data-read]').forEach(el=>el.onclick=()=>{state.readingActive=el.dataset.read;state.structureEvidence=[el.dataset.read];render();});
+  document.querySelectorAll('[data-blank]').forEach(el=>el.onclick=()=>{const i=+el.dataset.blank;state.retellRevealed.add(i);state.structureEvidence=current().sentences[i].evidence;render();});
+  const sar=document.getElementById('showAllRetell'); if(sar) sar.onclick=()=>{current().sentences.forEach((_,i)=>state.retellRevealed.add(i));state.structureEvidence=[];render();};
+  const har=document.getElementById('hideAllRetell'); if(har) har.onclick=()=>{state.retellRevealed=new Set();state.structureEvidence=[];render();};
+  document.querySelectorAll('[data-check]').forEach(el=>el.onclick=()=>onCheck(+el.dataset.check,el.dataset.option));
+  document.querySelectorAll('[data-fact]').forEach(el=>el.onclick=()=>{state.factRevealed.add(+el.dataset.fact);render();});
+  document.querySelectorAll('[data-transferblank]').forEach(el=>el.onclick=()=>{state.transferRevealed.add(+el.dataset.transferblank);render();});
+  const sat=document.getElementById('showAllTransfer'); if(sat) sat.onclick=()=>{let n=0;current().sentences.forEach(s=>s.parts.forEach(p=>{if(p.blank!==undefined)state.transferRevealed.add(n++);}));render();};
+  const hat=document.getElementById('hideAllTransfer'); if(hat) hat.onclick=()=>{state.transferRevealed=new Set();render();};
+  const sf=document.getElementById('showFrame'); if(sf) sf.onclick=()=>{state.frameShown=true;render();};
+  const ss=document.getElementById('showSample'); if(ss) ss.onclick=()=>{state.sampleShown=true;render();};
+  const sos=document.getElementById('showOutputSample'); if(sos) sos.onclick=()=>{state.sampleShown=true;render();};
+  document.querySelectorAll('[data-translation]').forEach(el=>el.onclick=(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    const key=el.dataset.translation;
+    if(state.revealedTranslations.has(key)) state.revealedTranslations.delete(key);
+    else state.revealedTranslations.add(key);
+    render();
+  });
+  bindDragOrder();
+  const co=document.getElementById('checkOrder'); if(co) co.onclick=()=>{state.orderChecked=true;render();};
+  const ro=document.getElementById('resetOrder'); if(ro) ro.onclick=()=>{
+    state.orderPicked=current().sentences.map(s=>s.id);state.orderChecked=false;render();
+  };
+
+  const p=document.getElementById('prevBtn'); if(p) p.onclick=()=>go(state.step-1);
+  const n=document.getElementById('nextBtn'); if(n) n.onclick=()=>go(state.step+1);
+  document.querySelectorAll('[data-jump]').forEach(el=>el.onclick=()=>go(+el.dataset.jump));
+  paintCheckResults();
+  if(current().type==='order_sentences' && state.orderChecked){
+    const fb=document.getElementById('orderFeedback');
+    const ok=JSON.stringify(state.orderPicked)===JSON.stringify(current().answer);
+    if(fb){
+      fb.textContent=ok?'✓ 顺序正确：WHO/WHAT → WHEN → PROBLEM → HOW → EFFECT':'再看左侧结构：先介绍是什么/谁，再说时间、问题、解决和影响。';
+      fb.style.background=ok?'var(--green-soft)':'var(--accent-soft)';
+      fb.style.color=ok?'#28744e':'#8b4c14';
+    }
+  }
+}
+
+
+function bindDragOrder(){
+  if(current().type!=='order_sentences') return;
+  let dragged=null;
+  document.querySelectorAll('.drag-card').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      if(e.target.closest('.translation-icon')){e.preventDefault();return;}
+      dragged=card.dataset.dragorder;
+      card.classList.add('dragging');
+      if(e.dataTransfer){
+        e.dataTransfer.effectAllowed='move';
+        e.dataTransfer.setData('text/plain',dragged);
+      }
+    });
+    card.addEventListener('dragend',()=>{
+      card.classList.remove('dragging');
+      document.querySelectorAll('.drag-card').forEach(x=>x.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover',e=>{
+      e.preventDefault();
+      if(card.dataset.dragorder!==dragged) card.classList.add('drag-over');
+      if(e.dataTransfer) e.dataTransfer.dropEffect='move';
+    });
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+    card.addEventListener('drop',e=>{
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const source=dragged || e.dataTransfer?.getData('text/plain');
+      const target=card.dataset.dragorder;
+      if(!source || source===target) return;
+      const arr=[...state.orderPicked];
+      const from=arr.indexOf(source), to=arr.indexOf(target);
+      if(from<0 || to<0) return;
+      arr.splice(from,1);
+      arr.splice(to,0,source);
+      state.orderPicked=arr;
+      state.orderChecked=false;
+      render();
+    });
+  });
+}
+
+function onSentenceClick(id){
+  const step=current();
+  if(step.type!=='question'||!state.selecting) return;
+  state.selected.add(id);
+  render();
+  const fb=document.getElementById('feedback');
+  if((step.evidence||[]).includes(id)){
+    const done=evidenceComplete(step);
+    setFeedback(fb,done?'证据找全了。现在概括答案。':'方向对，还需要再找一处证据。','good');
+  } else if((step.supporting||[]).includes(id)){
+    setFeedback(fb,'这句是相关的辅助证据，但还不是最直接的答案依据。','warn');
+  } else {
+    const msg=(step.diagnosis&&step.diagnosis[id]) || '这句不是当前问题的直接证据。继续找。';
+    setFeedback(fb,msg,'bad');
+    setTimeout(()=>{state.selected.delete(id);render();},700);
+  }
+}
+
+function setFeedback(el,msg,type){ if(!el)return; el.className=`feedback show ${type}`; el.textContent=msg; }
+
+function onCheck(i,opt){
+  const step=current(); const it=step.items[i];
+  let arr=state.checkSelections[i]||[];
+  if(it.type==='multi'){
+    if(arr.includes(opt)) arr=arr.filter(x=>x!==opt); else if(arr.length<2) arr=[...arr,opt];
+  }else arr=[opt];
+  state.checkSelections[i]=arr;
+  render();
+}
+
+function paintCheckResults(){
+  const step=current(); if(step.type!=='check') return;
+  step.items.forEach((it,i)=>{
+    const arr=state.checkSelections[i]||[];
+    const note=document.getElementById(`note-${i}`);
+    const buttons=[...document.querySelectorAll(`[data-check="${i}"]`)];
+    if(it.type==='multi'){
+      if(arr.length<2){if(note)note.textContent='选择两个答案。';return;}
+      const target=[...it.answer].sort().join('|'), got=[...arr].sort().join('|');
+      const ok=target===got;
+      buttons.forEach(b=>{if(arr.includes(b.dataset.option)) b.classList.add(ok?'right':'wrong');});
+      if(note){note.textContent=ok?'✓ 正确':'再检查：有一个选项不符合原文。';note.style.color=ok?'#28744e':'#a13f3f';}
+    } else if(arr.length){
+      const ok=arr[0]===it.answer;
+      buttons.forEach(b=>{if(arr.includes(b.dataset.option)) b.classList.add(ok?'right':'wrong');});
+      if(note){note.textContent=ok?'✓ 正确':'再想一想。';note.style.color=ok?'#28744e':'#a13f3f';}
+    }
+  });
+}
+
+function go(i){
+  if(i<0||i>=lessonData.steps.length) return;
+  state.step=i; clearTransient(); render(0);
+  document.getElementById('articlePane').scrollTop=0;
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') go(state.step+1);
+  else if(e.key==='ArrowLeft') go(state.step-1);
+  else if(e.key.toLowerCase()==='h' && current().type==='question'){state.hintLevel=Math.min(3,state.hintLevel+1);render();}
+  else if(e.key===' ' && current().type==='question'){e.preventDefault();state.selecting=true;render();}
+  else if(e.key==='Enter' && current().type==='question' && evidenceComplete(current())){state.answerShown=true;render();}
+  else if(e.key.toLowerCase()==='r' && current().type==='question'){state.selecting=false;state.selected=new Set();state.hintLevel=0;state.answerShown=false;render();}
+});
+
+render();
+</script>
+</body>
+</html>
