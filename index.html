@@ -80,19 +80,8 @@
       color:var(--muted);
     }
 
-    .masthead{
-      padding:30px 2px 22px;
-    }
-    h1{
-      margin:0;
-      max-width:980px;
-      font-size:clamp(42px,6vw,78px);
-      line-height:1;
-      letter-spacing:-.06em;
-      font-weight:500;
-    }
-
     .workspace{
+      margin-top:18px;
       display:grid;
       grid-template-columns:minmax(0,1.9fr) minmax(300px,.78fr);
       gap:18px;
@@ -308,7 +297,6 @@
       .shell{width:min(100% - 22px,1440px);padding-top:8px}
       .topbar{min-height:48px}
       .brand span,.status span:last-child{display:none}
-      .masthead{padding:30px 2px 22px}
       h1{font-size:clamp(48px,17vw,78px)}
       .panel{border-radius:22px}
       .panel-head{align-items:stretch;flex-direction:column;padding:22px 20px 16px}
@@ -331,13 +319,8 @@
     <nav class="topbar" aria-label="顶部导航">
       <a class="brand" href="/">
         <strong>Grint</strong>
-        <span>English Teaching Archive</span>
       </a>
     </nav>
-
-    <header class="masthead">
-      <h1>九年级英语课件库</h1>
-    </header>
 
     <section class="workspace">
       <section class="panel catalog" aria-labelledby="catalog-title">
